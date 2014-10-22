@@ -37,7 +37,7 @@ Once this operation is complete, simply add both the service provider and facade
 
 #### New Artisan Command
 ```
-module:controller ModuleName ControllerName
+php artisan module:controller ModuleName ControllerName
 ```
 
 And that's it! With your coffee in reach, start building out some awesome modules!
