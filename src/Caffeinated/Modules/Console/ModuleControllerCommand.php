@@ -2,7 +2,7 @@
 
 namespace Caffeinated\Modules\Console;
 
-use Caffeinated\Modules\Handlers\ModuleMakeControllerHandler;
+use Caffeinated\Modules\Handlers\ModuleControllerHandler;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
