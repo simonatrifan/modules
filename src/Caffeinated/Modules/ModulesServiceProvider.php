@@ -84,6 +84,7 @@ class ModulesServiceProvider extends ServiceProvider
 		$this->registerMigrateRollbackCommand();
 		$this->registerSeedCommand();
 		$this->registerListCommand();
+        $this->registerControllerCommand();
 
 		$this->commands([
 			'modules.make',
@@ -95,7 +96,8 @@ class ModulesServiceProvider extends ServiceProvider
 			'modules.migrateReset',
 			'modules.migrateRollback',
 			'modules.seed',
-			'modules.list'
+			'modules.list',
+            'modules.controller'
 		]);
 	}
 
@@ -222,4 +224,18 @@ class ModulesServiceProvider extends ServiceProvider
 			return new Console\ModuleListCommand($app['modules']);
 		});
 	}
+
+    /**
+     * Register the "module:controller" console command.
+     *
+     * @return Console\ModuleControllerCommand
+     */
+    protected function registerControllerCommand()
+    {
+        $this->app->bindShared('modules.controller', function($app) {
+            $handler = new Handlers\ModuleControllerHandler($app['modules'], $app['files']);
+
+            return new Console\ModuleControllerCommand($handler);
+        });
+    }
 }
