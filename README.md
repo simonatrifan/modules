@@ -35,4 +35,9 @@ Once this operation is complete, simply add both the service provider and facade
 'Module' => 'Caffeinated\Modules\Facades\Module'
 ```
 
+#### New Artisan Command
+```
+module:controller ModuleName ControllerName
+```
+
 And that's it! With your coffee in reach, start building out some awesome modules!
