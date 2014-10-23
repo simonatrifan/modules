@@ -47,7 +47,7 @@ class ModuleMakeMigrationCommand extends Command
 	 */
 	public function fire()
 	{
-		return $this->handler->fire($this, $this->argument('module'), $this->argument('table'));
+		return $this->handler->fire($this, $this->argument('module'), $this->argument('name'), $this->option('table'), $this->option('create'));
 	}
 
 	/**
@@ -59,7 +59,20 @@ class ModuleMakeMigrationCommand extends Command
 	{
 		return [
 			['module', InputArgument::REQUIRED, 'Module slug.'],
-			['table', InputArgument::REQUIRED, 'Table name.']
+			['name', InputArgument::REQUIRED, 'Migration name.']
 		];
 	}
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['table', null, InputOption::VALUE_OPTIONAL, 'Migration table.', ''],
+            ['create', null, InputOption::VALUE_NONE, 'Migration create table.']
+        ];
+    }
 }

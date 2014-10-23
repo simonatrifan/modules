@@ -34,6 +34,11 @@ class ModuleMakeMigrationHandler
 	 */
 	protected $table;
 
+    /**
+     * @var string
+     */
+    protected $create;
+
 	/**
 	 * @var string
 	 */
@@ -62,18 +67,19 @@ class ModuleMakeMigrationHandler
 	 * @param string $slug
 	 * @return bool
 	 */
-	public function fire(Command $console, $slug, $table)
+	public function fire(Command $console, $slug, $migrationName, $table, $create)
 	{
 		$this->console       = $console;
 		$this->moduleName    = Str::studly($slug);
-		$this->table         = str_plural(strtolower($table));
-		$this->migrationName = 'create_'.snake_case($this->table).'_table';
+        $this->migrationName = $migrationName;
+		$this->table         = $table ? : strtolower($table);
+        $this->create        = $create ? true : false;
 		$this->className     = studly_case($this->migrationName);
 
 		if ($this->module->has($this->moduleName)) {
 			$this->makeFile();
 
-			$this->console->info("Created Module Migration: [$this->moduleName] ".$this->getFilename());
+			$this->console->info("Created Module Migration: [$this->moduleName] " . $this->getFilename());
 
 			return $this->console->call('dump-autoload');
 		}
@@ -98,7 +104,7 @@ class ModuleMakeMigrationHandler
 	 */
 	protected function getDestinationFile()
 	{
-		return $this->getPath().$this->formatContent($this->getFilename());
+		return $this->getPath() . $this->formatContent($this->getFilename());
 	}
 
 	/**
@@ -110,7 +116,7 @@ class ModuleMakeMigrationHandler
 	{
 		$path = $this->module->getModulePath($this->moduleName);
 
-		return $path.'Database/Migrations/';
+		return $path . 'Database/Migrations/';
 	}
 
 	/**
@@ -120,7 +126,7 @@ class ModuleMakeMigrationHandler
 	 */
 	protected function getFilename()
 	{
-		return date("Y_m_d_His").'_'.$this->migrationName.'.php';
+		return date("Y_m_d_His") . '_' . $this->migrationName . '.php';
 	}
 
 	/**
@@ -130,7 +136,9 @@ class ModuleMakeMigrationHandler
 	 */
 	protected function getStubContent()
 	{
-		return $this->formatContent($this->finder->get(__DIR__.'/../Console/stubs/migration.stub'));
+		return $this->create ?
+            $this->formatContent($this->finder->get(__DIR__.'/../Console/stubs/migrationcreate.stub')) :
+            $this->formatContent($this->finder->get(__DIR__.'/../Console/stubs/migration.stub'));
 	}
 
 	/**
