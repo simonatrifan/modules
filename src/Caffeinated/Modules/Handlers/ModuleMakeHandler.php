@@ -102,7 +102,7 @@ class ModuleMakeHandler
 		$this->name    = Str::studly($slug);
 
 		if ($this->modules->has($this->slug)) {
-			$console->comment('Module [{$this->name}] already exists.');
+			$console->comment("Module [{$this->name}] already exists.");
 
 			return false;
 		}
