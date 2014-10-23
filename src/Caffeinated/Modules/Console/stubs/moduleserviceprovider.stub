@@ -36,7 +36,7 @@ class {{name}}ServiceProvider extends ServiceProvider
 
 		$items = Config::getLoader()->load(App::environment(), 'app', '{{slug}}');
 		foreach ($items as $key => $item) {
-		    Config::set($key, $item);
+		    Config::set("app.$key", $item);
 		}
 
 		Lang::addNamespace('{{slug}}', __DIR__.'/../Resources/Lang/');
