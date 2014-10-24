@@ -39,6 +39,11 @@ class ModuleMakeMigrationHandler
      */
     protected $create;
 
+    /**
+     * @var string
+     */
+    protected $disable_fk;
+
 	/**
 	 * @var string
 	 */
@@ -67,13 +72,14 @@ class ModuleMakeMigrationHandler
 	 * @param string $slug
 	 * @return bool
 	 */
-	public function fire(Command $console, $slug, $migrationName, $table, $create)
+	public function fire(Command $console, $slug, $migrationName, $table, $create, $disable_fk)
 	{
 		$this->console       = $console;
 		$this->moduleName    = Str::studly($slug);
         $this->migrationName = $migrationName;
 		$this->table         = $table ? : strtolower($table);
         $this->create        = $create ? true : false;
+        $this->disable_fk    = $disable_fk ? true : false;
 		$this->className     = studly_case($this->migrationName);
 
 		if ($this->module->has($this->moduleName)) {
@@ -137,7 +143,10 @@ class ModuleMakeMigrationHandler
 	protected function getStubContent()
 	{
 		return $this->create ?
-            $this->formatContent($this->finder->get(__DIR__.'/../Console/stubs/migrationcreate.stub')) :
+            ($this->disable_fk ?
+                $this->formatContent($this->finder->get(__DIR__.'/../Console/stubs/migrationcreatefk.stub')) :
+                $this->formatContent($this->finder->get(__DIR__.'/../Console/stubs/migrationcreate.stub'))
+            ) :
             $this->formatContent($this->finder->get(__DIR__.'/../Console/stubs/migration.stub'));
 	}
 

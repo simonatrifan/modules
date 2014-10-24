@@ -47,7 +47,7 @@ class ModuleMakeMigrationCommand extends Command
 	 */
 	public function fire()
 	{
-		return $this->handler->fire($this, $this->argument('module'), $this->argument('name'), $this->option('table'), $this->option('create'));
+		return $this->handler->fire($this, $this->argument('module'), $this->argument('name'), $this->option('table'), $this->option('create'), $this->option('disable-fk'));
 	}
 
 	/**
@@ -72,7 +72,8 @@ class ModuleMakeMigrationCommand extends Command
     {
         return [
             ['table', null, InputOption::VALUE_OPTIONAL, 'Migration table.', ''],
-            ['create', null, InputOption::VALUE_NONE, 'Migration create table.']
+            ['create', null, InputOption::VALUE_NONE, 'Migration create table.'],
+            ['disable-fk', null, InputOption::VALUE_NONE, 'Migration create table with disabled foreign key check.']
         ];
     }
 }
