@@ -55,7 +55,7 @@ class ModulesServiceProvider extends ServiceProvider
 	protected function registerServices()
 	{
 		$this->app->bindShared('modules.handler', function ($app) {
-			return new ModulesHandler($app['files'], $app['config']);
+			return new ModulesHandler($app['config']);
 		});
 
 		$this->app->bindShared('modules', function ($app) {

@@ -6,16 +6,9 @@ use Countable;
 use Caffeinated\Modules\Exceptions\FileMissingException;
 use Illuminate\Support\Str;
 use Illuminate\Config\Repository;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Database\Eloquent\Collection;
 
 class ModulesHandler implements Countable
 {
-	/**
-	 * @var Filesystem
-	 */
-	protected $files;
-
 	/**
 	 * @var Repository
 	 */
@@ -39,13 +32,11 @@ class ModulesHandler implements Countable
 	/**
 	 * Constructor method.
 	 *
-	 * @param Filesystem $files
 	 * @param Repository $config
 	 */
-	public function __construct(Filesystem $files, Repository $config)
+	public function __construct(Repository $config)
 	{
 		$this->config = $config;
-		$this->files  = $files;
 	}
 
 	/**
