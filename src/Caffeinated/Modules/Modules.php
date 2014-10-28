@@ -38,8 +38,8 @@ class Modules implements Countable
 	public function __construct(ModulesHandler $handler, Repository $config, Filesystem $files)
 	{
 		$this->handler = $handler;
-		$this->config = $config;
-		$this->files  = $files;
+		$this->config  = $config;
+		$this->files   = $files;
 	}
 
 	/**
@@ -65,9 +65,9 @@ class Modules implements Countable
 	{
 		$module = Str::studly($module['slug']);
 
-		$file = $this->getPath()."/{$module}/Providers/{$module}ServiceProvider.php";
+		$file = $this->getPath() . "/{$module}/Providers/{$module}ServiceProvider.php";
 
-		$namespace = $this->getNamespace().$module."\\Providers\\{$module}ServiceProvider";
+		$namespace = $this->getNamespace() . $module . "\\Providers\\{$module}ServiceProvider";
 
 		if ( ! $this->files->exists($file)) {
 			$message = "Module [{$module}] must have a \"{$module}/Providers/{$module}ServiceProvider.php\" file for bootstrapping purposes.";
@@ -85,14 +85,7 @@ class Modules implements Countable
 	 */
 	public function all()
 	{
-		$modules = array();
-		
-		foreach ($this->handler->all() as $module) {
-			$modules[] = $this->handler->getJsonContents($module);
-		}
-
-		if (isset($modules))
-			return new Collection($modules);
+		return new Collection($this->handler->all());
 	}
 
 	/**
@@ -170,7 +163,7 @@ class Modules implements Countable
 	 */
 	public function getProperties($slug)
 	{
-		return $this->handler->getJsonContents($slug);
+		return $this->handler->getModuleContents($slug);
 	}
 
 	/**
@@ -208,17 +201,17 @@ class Modules implements Countable
 		$data    = [];
 		$modules = $this->all();
 
-		if (count($modules)) {
-			foreach ($modules as $module) {
-				if ($enabled === true) {
-					if ($this->isEnabled($module['slug']))
-						$data[] = $module;
-				} else {
-					if ($this->isDisabled($module['slug']))
-						$data[] = $module;
-				}
-			}
-		}
+        foreach ($modules as $module) {
+            if ($enabled === true) {
+                if ($this->isEnabled($module['slug'])) {
+                    $data[] = $module;
+                }
+            } else {
+                if ($this->isDisabled($module['slug'])) {
+                    $data[] = $module;
+                }
+            }
+        }
 
 		return $data;
 	}

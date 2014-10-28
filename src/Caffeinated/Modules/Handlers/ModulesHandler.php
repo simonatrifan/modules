@@ -26,11 +26,21 @@ class ModulesHandler implements Countable
 	 */
 	protected $path;
 
+    /**
+     * @var All modules
+     */
+    protected $all;
+
+    /**
+     * @var All slugs
+     */
+    protected $slugs;
+
 	/**
 	 * Constructor method.
 	 *
 	 * @param Filesystem $files
-	 * @param Repository $confid
+	 * @param Repository $config
 	 */
 	public function __construct(Filesystem $files, Repository $config)
 	{
@@ -41,25 +51,50 @@ class ModulesHandler implements Countable
 	/**
 	 * Get all modules.
 	 *
-	 * @return Collection
+	 * @return array
 	 */
 	public function all()
 	{
-		$modules = [];
-		$path    = $this->getPath();
+        if ($this->all) {
+            return $this->all;
+        }
 
-		if ( ! is_dir($path))
-			return new Collection($modules);
+        // Get modules from config/modules.php file
+        $config = $this->getModulesConfig();
 
-		$folders = $this->files->directories($path);
+        // Set the modules
+        $this->all = $config;
 
-		foreach ($folders as $module) {
-			if ( ! Str::startsWith($module, '.'))
-				$modules[] = basename($module);
-		}
+        // Build slugs
+        $this->slugs();
 
-		return new Collection($modules);
+        return $this->all;
 	}
+
+    /**
+     * Get all modules slugs
+     *
+     * @return mixed
+     * @throws FileMissingException
+     */
+    public function slugs()
+    {
+        if ($this->slugs) {
+            return $this->slugs;
+        }
+
+        // Get modules from config/modules.php file
+        $config = $this->all ? : $this->getModulesConfig();
+
+        $this->slugs = array_map(function($item) {
+            return $item['slug'];
+        }, array_filter($config, function($arr) {
+            return array_key_exists('slug', $arr);
+        }));
+
+        return $this->slugs;
+
+    }
 
 	/**
 	 * Check if given module exists.
@@ -69,7 +104,7 @@ class ModulesHandler implements Countable
 	 */
 	public function has($slug)
 	{
-		return in_array($slug, $this->all()->toArray());
+		return in_array($slug, $this->slugs());
 	}
 
 	/**
@@ -79,7 +114,7 @@ class ModulesHandler implements Countable
 	 */
 	public function count()
 	{
-		return count($this->all()->toArray());
+		return count($this->all());
 	}
 
 	/**
@@ -116,10 +151,11 @@ class ModulesHandler implements Countable
 	{
 		$module = Str::studly($module);
 
-		if ( ! $this->has($module) and $allowNotExists === false)
-			return null;
+		if ($this->has($module) and $allowNotExists === false) {
+            return null;
+        }
 
-		return $this->getPath()."/{$module}/";
+		return $this->getPath() . "/{$module}/";
 	}
 
 	/**
@@ -133,7 +169,7 @@ class ModulesHandler implements Countable
 	{
 		list($module, $key) = explode('::', $property);
 
-		return array_get($this->getJsonContents($module), $key, $default);
+		return array_get(array_get($this->all(), $module, []), $key, $default);
 	}
 
 	/**
@@ -145,55 +181,37 @@ class ModulesHandler implements Countable
 	 */
 	public function setProperty($property, $value)
 	{
-		list($module, $key) = explode('::', $property);
-
-		$content = $this->getJsonContents($module);
-
-		if (count($content)) {
-			if (isset($content[$key])) {
-				unset($content[$key]);
-			}
-
-			$content[$key] = $value;
-
-			$this->setJsonContents($module, $content);
-
-			return true;
-		}
-
-		return false;
+        // Not available
+        return false;
 	}
 
+    /**
+     * Get module properties as an array.
+     * Legacy function.
+     *
+     * @param string $module
+     * @return array|mixed
+     */
+    public function getModuleContents($module)
+    {
+        return array_get($this->all(), $module, []);
+    }
+
 	/**
-	 * Get module JSON content as an array.
+	 * Get module properties as an array.
+     * Legacy function.
 	 *
 	 * @param string $module
 	 * @return array|mixed
 	 */
 	public function getJsonContents($module)
 	{
-		$module = Str::studly($module);
-		
-		$default = [];
-
-		if ( ! $this->has($module))
-			return $default;
-
-		$path = $this->getJsonPath($module);
-
-		if ($this->files->exists($path)) {
-			$contents = $this->files->get($path);
-
-			return json_decode($contents, true);
-		} else {
-			$message = "Module [{$module}] must have a valid module.json file.";
-
-			throw new FileMissingException($message);
-		}
+        return $this->getModuleContents($module);
 	}
 
 	/**
 	 * Set module JSON content property value.
+     * Legacy function.
 	 *
 	 * @param $module
 	 * @param array $content
@@ -201,41 +219,65 @@ class ModulesHandler implements Countable
 	 */
 	public function setJsonContents($module, array $content)
 	{
-		$content = json_encode($content, JSON_PRETTY_PRINT);
-
-		return $this->files->put($this->getJsonPath($module), $content);
+        // Not implemented
+		return 0;
 	}
 
 	/**
 	 * Get path of module JSON file.
+     * Legacy function.
 	 *
 	 * @param string $module
 	 * @return string
 	 */
 	public function getJsonPath($module)
 	{
-		return $this->getModulePath($module).'/module.json';
+		return $this->getModulePath($module) . '/module.json';
 	}
 
 	/**
 	 * Enables the specified module.
+     * Legacy function.
 	 *
 	 * @param string $slug
 	 * @return bool
 	 */
 	public function enable($slug)
 	{
-		return $this->setProperty("{$slug}::enabled", true);
+        // Not implemented
+		return false;
 	}
 
 	/**
 	 * Disables the specified module.
+     * Legacy function
 	 *
 	 * @param string $slug
 	 * @return bool
 	 */
 	public function disable($slug)
 	{
-		return $this->setProperty("{$slug}::enabled", false);
+        // Not implemented
+		return false;
 	}
+
+
+    /**
+     * Get modules from config/modules.php file
+     *
+     * @return mixed
+     * @throws FileMissingException
+     */
+    public function getModulesConfig()
+    {
+        $config = $this->config->get('modules.modules');
+
+        if (!$config) {
+            $message = "No valid config/modules.php file found.";
+
+            throw new FileMissingException($message);
+        }
+
+        return $config;
+    }
 }
